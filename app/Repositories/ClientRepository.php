@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Http\Resources\ClientCollection;
 use App\Models\Client;
 use App\Repositories\Interfaces\ClientRepositoryInterface;
 use App\Services\GoogleMapsService;
@@ -11,6 +12,11 @@ use Carbon\Carbon;
 
 class ClientRepository implements ClientRepositoryInterface
 {
+    public function all(): ClientCollection
+    {
+        return new ClientCollection(Client::paginate());
+    }
+
     public function create(array $data): Client
     {
         $fullAddress = "{$data['address1']}, {$data['city']}, {$data['state']}, {$data['country']}, {$data['zipCode']}";

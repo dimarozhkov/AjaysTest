@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\StoreRequest;
+use App\Http\Resources\ClientCollection;
 use App\Repositories\ClientRepository;
 use App\Repositories\UserRepository;
 
@@ -27,5 +28,10 @@ class ClientController extends Controller
         $this->userRepository->create($client->id, $data['user']);
 
         return ['data' => $client->load('users')];
+    }
+
+    public function all(): ClientCollection
+    {
+        return $this->clientRepository->all();
     }
 }
