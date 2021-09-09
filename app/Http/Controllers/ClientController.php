@@ -6,18 +6,26 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\StoreRequest;
 use App\Repositories\ClientRepository;
+use App\Repositories\UserRepository;
 
 class ClientController extends Controller
 {
     private $clientRepository;
+    private $userRepository;
 
-    public function __construct(ClientRepository $clientRepository)
+    public function __construct(ClientRepository $clientRepository, UserRepository $userRepository)
     {
         $this->clientRepository = $clientRepository;
+        $this->userRepository = $userRepository;
     }
 
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): array
     {
-        return $this->clientRepository->create($request->toArray());
+        $data = $request->toArray();
+
+        $client = $this->clientRepository->create($data);
+        $this->userRepository->create($client->id, $data['user']);
+
+        return ['data' => $client->load('users')];
     }
 }

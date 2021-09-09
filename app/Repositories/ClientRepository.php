@@ -10,10 +10,9 @@ use Carbon\Carbon;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    public function create(array $data)
+    public function create(array $data): Client
     {
-        $client = new Client();
-        $client->fill([
+        $client = (new Client())->fill([
             'client_name' => $data['name'],
             'address1' => $data['address1'],
             'address2' => $data['address2'],
@@ -27,9 +26,11 @@ class ClientRepository implements ClientRepositoryInterface
             'zip' => $data['zipCode'],
             'start_validity' => Carbon::now(),
             'end_validity' => Carbon::now()->addDays(15),
-            'status' => 'Active'
+            'status' => $data['status'] ?? 'Active',
         ]);
 
         $client->save();
+
+        return $client;
     }
 }
