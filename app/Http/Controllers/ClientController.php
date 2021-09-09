@@ -32,6 +32,10 @@ class ClientController extends Controller
 
     public function all(): ClientCollection
     {
-        return $this->clientRepository->all();
+        return $this->clientRepository->all(
+            request()->get('where') ?? [],
+            request()->get('orderBy') ?? 'created_at',
+            request()->get('orderCondition') ?? 'asc'
+        );
     }
 }

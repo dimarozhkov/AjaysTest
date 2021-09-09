@@ -9,18 +9,32 @@ use App\Models\Client;
 use App\Repositories\Interfaces\ClientRepositoryInterface;
 use App\Services\GoogleMapsService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    public function all(): ClientCollection
+    public function all(array $where, string $orderBy, string $orderCondition ): ClientCollection
     {
-        return new ClientCollection(Client::paginate());
+        $client = Client::query();
+
+        if (count($where) > 0) {
+            $client->where($where);
+        }
+
+        if ($orderBy) {
+            $client->orderBy($orderBy, $orderCondition);
+        }
+
+        return new ClientCollection($client->paginate());
     }
 
     public function create(array $data): Client
     {
         $fullAddress = "{$data['address1']}, {$data['city']}, {$data['state']}, {$data['country']}, {$data['zipCode']}";
-        $coordinates = GoogleMapsService::getCoordinates($fullAddress);
+
+        $coordinates = Cache::rememberForever($fullAddress, function () use ($fullAddress) {
+            return GoogleMapsService::getCoordinates($fullAddress);
+        });
 
         $client = (new Client())->fill([
             'client_name' => $data['name'],
